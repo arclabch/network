@@ -148,16 +148,24 @@ sub usage {
 #
 
 sub list {
-    printf("%-20s %-20s %-10s %-20s %-20s\n", "Network name", "SSID", "Type",
-        "DHCP hostname", "Link layer addr");
-    print "-" x 91 . "\n";
+    printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", "Network", "SSID",
+        "Type", "IPv4", "DNS", "DHCP hostname", "Link layer addr");
+    print "-" x 105 . "\n";
     foreach my $index (sort (keys %networks)) {
         my %net = %{$networks{$index}};
-        printf("%-20s %-20s %-10s %-20s %-20s\n", $net{"name"},
-            ($net{"nwid"} || "-"), $net{"type"}, ($net{"hostname"} || "-"),
-            ($net{"lladdr"} || "-"));
+        my $dns;
+        if(uc($net{"ipv4"}) eq uc("dhcp") && !defined($net{"dns"})) {
+            $dns = "Auto";
+        } elsif(!defined($net{"dns"})) {
+            $dns = "-";
+        } else {
+            $dns = "Cust.";
+        }
+        printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", $net{"name"},
+            ($net{"nwid"} || "-"), $net{"type"}, $net{"ipv4"}, $dns,
+            ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
     }
-    print "-" x 91 . "\n";
+    print "-" x 105 . "\n";
 }
 
 
