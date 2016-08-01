@@ -29,8 +29,7 @@ use warnings;
 # Configuration
 #
 
-#my $config_file = "/etc/networks.conf";
-my $config_file = "./networks.conf"; # local config file during development
+my $config_file = "/etc/networks.conf";
 
 
 #
