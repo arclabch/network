@@ -31,18 +31,22 @@ Do not add quotes around values.
 .Sh CONFIG
 Required options:
 .Bl -tag -width Ds
-.It Ic int_wlan
+.It Ic wlan_int
 Name of the wireless interface.
-.It Ic lladdr_default
-Default link layer address (MAC address), in the format xx:xx:xx:xx:xx:xx.
-.It Ic hostname_default
+.It Ic wlan_lladdr
+Default link layer address (MAC address) for the wireless interface,
+in the format xx:xx:xx:xx:xx:xx.
+.It Ic hostname
 Default DHCP hostname.
 .El
 .Pp
-Optional option:
+Optional options:
 .Bl -tag -width Ds
-.It Ic int_wired
+.It Ic wired_int
 Name of the wired interface, if you use it.
+.It Ic wired_lladdr 
+Default link layer address (MAC address) for the wired interface,
+in the format xx:xx:xx:xx:xx:xx.
 .El
 .Sh NETWORK
 Common options to all network types:
@@ -57,20 +61,35 @@ Type of network. Accepted values are:
 or
 .Em wpa
 (for a wireless network).
+.It Ic ipv4
+IPv4 configuration. Accepted values are:
+.Em dhcp
+or a
+.Em CIDR address
+(ie 192.168.0.10/24).
+.It ic ipv4_gw
+Gateway when using a static IP.
+.It Ic hostname
+DHCP hostname for this network.
+.It Ic dns
+DNS servers to use. Multiple servers are possible, separated by spaces.
+If DHCP is used, the DNS servers will be used nonetheless in place of those
+provided by the DHCP server. Remove if you want to use the DNS settings
+provided by DHCP.
+.It Ic dns_domain
+Domain name for DNS searches, if needed.
 .It Ic lladdr
 Link layer address for this network. Accepted values are
 .Em default ,
 .Em random
 for a random address, or a manual address in the format
 .Em xx:xx:xx:xx:xx:xx .
-.It Ic hostname
-DHCP hostname for this network.
 .El
 .Pp
 Required option for all wireless networks:
 .Bl -tag -width Ds
 .It Ic nwid
-The SSID of the wireless.
+The SSID of the wireless network.
 .El
 .Pp
 Required option for WPA wireless networks:
