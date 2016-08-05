@@ -29,7 +29,8 @@ use warnings;
 # Configuration
 #
 
-my $config_file = "/etc/networks.conf";
+#my $config_file = "/etc/networks.conf";
+my $config_file = "./networks.conf"; # local config file during development
 
 
 #
@@ -62,6 +63,7 @@ sub if_down;
 my %configuration;
 my $current;
 my $network;
+my $vpn;
 
 die("Error: you are not running OpenBSD.\n") unless $^O eq "openbsd";
 open FILE,"<",$config_file
@@ -81,6 +83,11 @@ while(<FILE>) {
         $network += 1;
         next;
     }
+    if($_ eq "[vpn]") {
+        $current = "vpn";
+        $vpn += 1;
+        next;
+    }
     die("Config error: key=value pair expected on line $..\n")
         unless $_ =~ m/^\w+=.+$/;
 
@@ -89,6 +96,8 @@ while(<FILE>) {
         $configuration{$current}{$key} = $value;
     } elsif($current eq "network") {
         $configuration{$current}{$network}{$key} = $value;
+    } elsif($current eq "vpn") {
+        $configuration{$current}{$vpn}{$key} = $value;
     }
 }
 
@@ -101,6 +110,7 @@ close(FILE);
 
 my %config    = %{$configuration{"config"}};
 my %networks  = %{$configuration{"network"}};
+my %vpns      = %{$configuration{"vpn"}};
 my $wlan_int  = $config{"wlan_int"}
     or die("Config error: could not find the wireless interface.\n");
 my $wired_int = $config{"wired_int"};
@@ -113,6 +123,7 @@ if(@ARGV) {
     elsif($command eq "scan")       { scan(); }
     elsif($command eq "airplane")   { airplane(); }
     elsif($command eq "connect")    { net_connect($argument); }
+    elsif($command eq "vpn")        { vpn($argument); }
     else                            { usage(); }
 } else {
     usage();
@@ -129,15 +140,19 @@ sub usage {
     print "Usage: network [command] [argument]\n";
     print "\n";
     print "Commands:\n";
-    print "   list                List configured networks.\n";
+    print "   list                List configured networks and VPNs.\n";
     print "   scan                Scan available wireless networks (requires ";
     print                         "root privileges).\n";
     print "                       Warning: scanning disconnects from current ";
     print                         "wireless network!\n";
-    print "   airplane            Disable all interfaces (requires root ";
-    print                         "privileges).\n";
+    print "   airplane            Disable all interfaces and VPNs (requires ";
+    print                         "root privileges).\n";
     print "   connect [network]   Connect to configured network (requires ";
     print                         "root privileges).\n";
+    print "   vpn [argument]      Connect to a VPN network or, if argument is ";
+    print                         "'disconnect',\n";
+    print "                       disconnects from a VPN (requires root ";
+    print                         "privileges).\n";
     print "   help                Print help (this message).\n";
 }
 
@@ -147,6 +162,7 @@ sub usage {
 #
 
 sub list {
+    print "Configured networks:\n";
     printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", "Network", "SSID",
         "Type", "IPv4", "DNS", "DHCP hostname", "Link layer addr");
     print "-" x 105 . "\n";
@@ -164,7 +180,20 @@ sub list {
             ($net{"nwid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
             ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
     }
-    print "-" x 105 . "\n";
+    print "-" x 105 . "\n\n";
+    print "Configured VPNs:\n";
+    printf("%-10s %-10s %-50s\n", "VPN name", "Type", "Configuration file");
+    print "-" x 72 . "\n";
+    foreach my $index (sort (keys %vpns)) {
+        my %vpncon = %{$vpns{$index}};
+        my $type = "?";
+        if(uc($vpncon{"type"}) eq uc("openvpn")) {
+            $type = "OpenVPN";
+        }
+        printf("%-10s %-10s %-50s\n", $vpncon{"name"}, $type,
+            $vpncon{"config"});
+    }
+    print "-" x 72 . "\n";
 }
 
 
@@ -283,6 +312,15 @@ sub net_connect {
     } else {
         print "Error: network \"$net\" not found in the configuration file.\n";
     }
+}
+
+
+#
+# Connect to or disconnect from a VPN
+#
+
+sub vpn {
+    my $vpncon = shift;
 }
 
 
