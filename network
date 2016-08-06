@@ -421,7 +421,7 @@ sub route_setup {
     print "Configuring route settings.\n";
 
     # Flush existing routes
-    my $flush = `route flush -inet`;
+    my $flush = `route -n flush -inet`;
 
     # Add new gateway
     system("route add -inet default $gw");
