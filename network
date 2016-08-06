@@ -29,8 +29,7 @@ use warnings;
 # Configuration
 #
 
-#my $config_file = "/etc/networks.conf";
-my $config_file = "./networks.conf"; # local config file during development
+my $config_file = "/etc/networks.conf";
 
 
 #
@@ -187,18 +186,18 @@ sub list {
 
     # VPNs
     print "Configured VPNs:\n";
-    printf("%-10s %-10s %-50s\n", "VPN name", "Type", "Configuration file");
-    print "-" x 72 . "\n";
+    printf("%-20s %-10s %-50s\n", "VPN name", "Type", "Configuration file");
+    print "-" x 82 . "\n";
     foreach my $index (sort (keys %vpns)) {
         my %vpncon = %{$vpns{$index}};
         my $type = "?";
         if(uc($vpncon{"type"}) eq uc("openvpn")) {
             $type = "OpenVPN";
         }
-        printf("%-10s %-10s %-50s\n", $vpncon{"name"}, $type,
+        printf("%-20s %-10s %-50s\n", $vpncon{"name"}, $type,
             $vpncon{"config"});
     }
-    print "-" x 72 . "\n";
+    print "-" x 82 . "\n";
 }
 
 

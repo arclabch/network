@@ -1,0 +1,40 @@
+1.2.0
+=====
+
+Features:
+- Added VPN configuration support (OpenVPN only for the moment).
+
+Bugfixes:
+- Commands are now case-insensitive.
+
+Other:
+- Created the changelog.
+- Added install/update/uninstall instructions.
+
+1.1.1
+=====
+
+Bugfixes:
+- Configuration file location error.
+
+
+1.1
+===
+
+Features:
+- Supports custom IPv4 configuration, instead of DHCP.
+- Supports custom DNS configuration.
+- Makefile now supports updates to avoid overwritten configuration file.
+
+Bugfixes:
+- Minor corrections and typos in man pages.
+
+
+1.0
+===
+
+Features:
+- Scanning available wireless networks.
+- Custom DHCP hostnames per network.
+- Custom link layer address per network.
+- Man pages.
