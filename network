@@ -29,7 +29,8 @@ use warnings;
 # Configuration
 #
 
-my $config_file = "/etc/networks.conf";
+#my $config_file = "/etc/networks.conf";
+my $config_file = "./networks.conf";
 
 
 #
@@ -167,12 +168,31 @@ sub list {
 
     # Networks
     print "Configured networks:\n";
-    printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", "Network", "SSID",
-        "Type", "IPv4", "DNS", "DHCP hostname", "Link layer addr");
-    print "-" x 105 . "\n";
+    printf("%-10s %-20s %-7s %-6s %-6s %-6s %-20s %-20s\n", "Network", "SSID",
+        "Type", "IPv4", "IPv6", "DNS", "DHCP hostname", "Link layer addr");
+    print "-" x 99 . "\n";
+
     foreach my $index (sort (keys %networks)) {
         my %net = %{$networks{$index}};
+        my $type;
         my $dns;
+        my $ipv4;
+        my $ipv6;
+        my $hostname;
+        my $lladdr;
+
+        if(uc($net{"type"}) eq uc("wired")) {
+            $type = "Wired";
+        } elsif(uc($net{"type"}) eq uc("open")) {
+            $type = "Open";
+        } elsif(uc($net{"type"}) eq uc("wep")) {
+            $type = "WEP";
+        } elsif(uc($net{"type"}) eq uc("WPA")) {
+            $type = "WPA";
+        } else {
+            $type = $net{"type"};
+        }
+
         if(uc($net{"ipv4"}) eq uc("dhcp") && !defined($net{"dns"})) {
             $dns = "Auto";
         } elsif(!defined($net{"dns"})) {
@@ -180,11 +200,44 @@ sub list {
         } else {
             $dns = "Cust.";
         }
-        printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", $net{"name"},
-            ($net{"ssid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
-            ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
+
+        if(uc($net{"ipv4"}) eq uc("dhcp")) {
+            $ipv4 = "DHCP";
+        } elsif(uc($net{"ipv4"}) eq uc("none")) {
+            $ipv4 = "None";
+        } else {
+            $ipv4 = "Cust.";
+        }
+
+        if(!defined($net{"ipv6"})) {
+            $ipv6 = "-";
+        } elsif(uc($net{"ipv6"}) eq uc("auto")) {
+            $ipv6 = "Auto";
+        } else {
+            $ipv6 = "Cust.";
+        }
+
+        if(!defined($net{"hostname"})) {
+            $hostname = "Default";
+        } elsif(uc($net{"hostname"}) eq uc("none")) {
+            $hostname = "None";
+        } else {
+            $hostname = $net{"hostname"};
+        }
+
+        if(!defined($net{"lladdr"})) {
+            $lladdr = "Default";
+        } elsif(uc($net{"lladdr"}) eq uc("random")) {
+            $lladdr = "Random";
+        } else {
+            $lladdr = $net{"lladdr"};
+        }
+
+        printf("%-10s %-20s %-7s %-6s %-6s %-6s %-20s %-20s\n", $net{"name"},
+            ($net{"ssid"} || "-"), $type, $ipv4, $ipv6, $dns, $hostname,
+            $lladdr);
     }
-    print "-" x 105 . "\n\n";
+    print "-" x 99 . "\n\n";
 
     # VPNs
     print "Configured VPNs:\n";
