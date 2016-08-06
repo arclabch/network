@@ -120,12 +120,12 @@ if(@ARGV) {
     my $command = shift(@ARGV);
     my $argument = shift(@ARGV);
 
-       if($command eq "list")       { list(); }
-    elsif($command eq "scan")       { scan(); }
-    elsif($command eq "airplane")   { airplane(); }
-    elsif($command eq "connect")    { net_connect($argument); }
-    elsif($command eq "vpn")        { vpn($argument); }
-    else                            { usage(); }
+       if(uc($command) eq uc("list"))       { list(); }
+    elsif(uc($command) eq uc("scan"))       { scan(); }
+    elsif(uc($command) eq uc("airplane"))   { airplane(); }
+    elsif(uc($command) eq uc("connect"))    { net_connect($argument); }
+    elsif(uc($command) eq uc("vpn"))        { vpn($argument); }
+    else                                    { usage(); }
 } else {
     usage();
 }
