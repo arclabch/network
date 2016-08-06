@@ -1,0 +1,35 @@
+INSTALL INSTRUCTIONS
+====================
+
+Just type
+    doas make install
+to install the software!
+
+Quick tip: to avoid typing your password everytime you use this tool, put this:
+
+    #!/bin/sh
+    doas network $1 $2
+
+in "network" in your personal bin directory, and then add the following line
+to your /etc/doas.conf file:
+
+    permit nopass <username> as root cmd network
+
+Now, when you type "network", it will be run as root without asking for your
+password.
+
+
+UPDATE INSTRUCTIONS
+===================
+
+Just type
+    doas make update
+and then review the changes to the configuration file, if needed.
+
+
+UNINSTALL INSTRUCTIONS
+======================
+
+Just type
+    doas make uninstall
+and then manually remove /etc/networks.conf if you don't need it anymore.

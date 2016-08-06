@@ -11,18 +11,22 @@ file contains configuration information for
 .Xr network 1 .
 By default, this file is editable by members of the wheel group to make managing wireless networks easier.
 .Pp
-It consists of two sections:
+It consists of a few different sections:
 .Bl -tag -width Ds
 .It Ic [config]
 containing common configuration information;
 .It Ic [network]
-containing specific network informations.
+containing specific network configuration;
+.It Ic [vpn]
+containing specific VPN configuration.
 .El
 .Pp
 There can only be one
 .Ar [config]
 section, but as many
 .Ar [network]
+and
+.Ar [vpn]
 sections as you require.
 .Pp
 In the sections, the configuration format is
@@ -97,6 +101,17 @@ Required option for WPA wireless networks:
 .It Ic wpakey
 The wireless key.
 .El
+.Sh VPN
+Required options for all VPN connections:
+.Bl -tag -width Ds
+.It Ic name
+The name of the VPN connection. Used to connect to it.
+.It Ic type
+Type of VPN connection. For the time being, the only accepted value is
+.Em openvpn .
+.It Ic config
+Configuration file to use for this connection. The configuration file is
+passed as argument to the VPN client.
 .Sh SEE ALSO
 .Xr network 1
 .Sh COPYRIGHT
