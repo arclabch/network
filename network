@@ -29,7 +29,8 @@ use warnings;
 # Configuration
 #
 
-my $config_file = "/etc/networks.conf";
+#my $config_file = "/etc/networks.conf";
+my $config_file = "./networks.conf";
 
 
 #
@@ -43,6 +44,7 @@ sub list;
 sub scan;
 sub airplane;
 sub net_connect;
+sub vpn;
 
 sub check_root;
 sub dhcp_client;
@@ -53,6 +55,7 @@ sub route_setup;
 sub wlan_config;
 sub if_lladdr;
 sub if_down;
+sub vpn_disconnect;
 sub vpn_openvpn;
 
 
