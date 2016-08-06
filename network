@@ -51,7 +51,7 @@ sub dhcp_client;
 sub dhcp_setup;
 sub dns_setup;
 sub ipv4_setup;
-sub route_setup;
+sub route4_setup;
 sub wlan_config;
 sub if_lladdr;
 sub if_down;
@@ -303,7 +303,7 @@ sub net_connect {
                 or die("Error: ".$connect{"ipv4"}." is not a valid IPv4 CIDR.\n");
             ipv4_setup($int, $connect{"ipv4"});
             if(defined($connect{"ipv4_gw"})) {
-                route_setup($connect{"ipv4_gw"});
+                route4_setup($connect{"ipv4_gw"});
             } else {
                 print "Warning: you are using a static IPv4 address but ";
                 print "haven't set a gateway.\n";
@@ -453,12 +453,12 @@ sub ipv4_setup {
 }
 
 #
-# Setup routes
+# Setup IPv4 routes
 #
 
-sub route_setup {
+sub route4_setup {
     my $gw = shift;
-    print "Configuring route settings.\n";
+    print "Configuring IPv4 route settings.\n";
 
     # Flush existing routes
     my $flush = `route -n flush -inet`;
@@ -506,6 +506,7 @@ sub wlan_config {
         system("ifconfig $int nwid \"$ssid\" wpa wpaakms psk wpakey \"$key\"");
     } elsif(uc($type) eq uc("802.1x")) {
         system("ifconfig $int nwid \"$ssid\" wpa wpaakms 802.1x");
+        print "Starting WPA supplicant.\n";
         system("wpa_supplicant -D openbsd -i $int -B ".
             "-c /etc/wpa_supplicant.conf");
     } else {
