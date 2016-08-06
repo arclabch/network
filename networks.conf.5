@@ -71,12 +71,22 @@ or
 file for the relevant SSID.
 .It Ic ipv4
 IPv4 configuration. Accepted values are:
-.Em dhcp
+.Em dhcp ,
+.Em none
 or a
 .Em CIDR address
-(ie 192.168.0.10/24).
+(ie 192.168.0.10/24). If the option is not present, dhcp will be assumed.
 .It Ic ipv4_gw
-IP of the gateway when using a static IP.
+IP of the gateway when using a static IPv4 address.
+.It Ic ipv6
+IPv6 configuration. Accepted values are:
+.Em auto
+or a
+.Em CIDR address
+(ie 2001:dead:beef::42/64). If not present, no IPv6 configuration will take
+place.
+.It ic ipv6_gw
+IP of the gateway when using a static IPv6 address.
 .It Ic hostname
 DHCP hostname for this network.
 .It Ic dns
