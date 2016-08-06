@@ -61,10 +61,14 @@ Name of the network. Used to connect to it.
 Type of network. Accepted values are:
 .Em wired
 (for a wired network),
-.Em open
-or
+.Em open ,
+.Em wep ,
 .Em wpa
-(for a wireless network).
+or
+.Em 802.1x
+(for wireless networks). Note that 802.1x requires a correctly configured
+.Em /etc/wpa_supplicant.conf
+file for the relevant SSID.
 .It Ic ipv4
 IPv4 configuration. Accepted values are:
 .Em dhcp
@@ -92,14 +96,20 @@ for a random address, or a manual address in the format
 .Pp
 Required option for all wireless networks:
 .Bl -tag -width Ds
-.It Ic nwid
+.It Ic ssid
 The SSID of the wireless network.
 .El
 .Pp
-Required option for WPA wireless networks:
+Required option for WEP/WPA wireless networks:
 .Bl -tag -width Ds
-.It Ic wpakey
+.It Ic key
 The wireless key.
+With WEP encryption, the key can either be a string, a series of hexadecimal
+digits (preceded by '0x'), or a set of keys of the form "n:k1,k2,k3,k4". See
+.Xr ifconfig 8
+for more information.
+With WPA encryption, the key can be given using either a passpharse or a full
+length hex key, starting with '0x'.
 .El
 .Sh VPN
 Required options for all VPN connections:

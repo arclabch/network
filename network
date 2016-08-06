@@ -43,16 +43,18 @@ sub list;
 sub scan;
 sub airplane;
 sub net_connect;
+sub vpn;
 
 sub check_root;
 sub dhcp_client;
 sub dhcp_setup;
 sub dns_setup;
 sub ipv4_setup;
-sub route_setup;
+sub route4_setup;
 sub wlan_config;
 sub if_lladdr;
 sub if_down;
+sub vpn_disconnect;
 sub vpn_openvpn;
 
 
@@ -179,7 +181,7 @@ sub list {
             $dns = "Cust.";
         }
         printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", $net{"name"},
-            ($net{"nwid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
+            ($net{"ssid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
             ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
     }
     print "-" x 105 . "\n\n";
@@ -284,7 +286,7 @@ sub net_connect {
             $int = $wlan_int;
             if_down($wired_int) if $wired_int;
             if_lladdr($wlan_int, $connect{"lladdr"});
-            wlan_config($wlan_int, $connect{"nwid"}, $connect{"wpakey"},
+            wlan_config($wlan_int, $connect{"ssid"}, $connect{"key"},
                 $connect{"type"});
         }
 
@@ -300,7 +302,7 @@ sub net_connect {
                 or die("Error: ".$connect{"ipv4"}." is not a valid IPv4 CIDR.\n");
             ipv4_setup($int, $connect{"ipv4"});
             if(defined($connect{"ipv4_gw"})) {
-                route_setup($connect{"ipv4_gw"});
+                route4_setup($connect{"ipv4_gw"});
             } else {
                 print "Warning: you are using a static IPv4 address but ";
                 print "haven't set a gateway.\n";
@@ -450,12 +452,12 @@ sub ipv4_setup {
 }
 
 #
-# Setup routes
+# Setup IPv4 routes
 #
 
-sub route_setup {
+sub route4_setup {
     my $gw = shift;
-    print "Configuring route settings.\n";
+    print "Configuring IPv4 route settings.\n";
 
     # Flush existing routes
     my $flush = `route -n flush -inet`;
@@ -491,12 +493,21 @@ sub if_lladdr {
 #
 
 sub wlan_config {
-    my ($int, $nwid, $key, $type) = @_;
-    print "Configuring SSID \"$nwid\" on $int.\n";
+    my ($int, $ssid, $key, $type) = @_;
+    print "Configuring SSID \"$ssid\" on $int.\n";
+    system("pkill wpa_supplicant");
+    system("ifconfig $int -nwid -nwkey -wpa -wpakey");
     if(uc($type) eq uc("open")) {
-        system("ifconfig $int nwid \"$nwid\" -wpakey");
+        system("ifconfig $int nwid \"$ssid\"");
+    } elsif(uc($type) eq uc("wep")) {
+        system("ifconfig $int nwid \"$ssid\" nwkey \"$key\"");
     } elsif(uc($type) eq uc("wpa")) {
-        system("ifconfig $int nwid \"$nwid\" wpakey \"$key\"");
+        system("ifconfig $int nwid \"$ssid\" wpa wpaakms psk wpakey \"$key\"");
+    } elsif(uc($type) eq uc("802.1x")) {
+        system("ifconfig $int nwid \"$ssid\" wpa wpaakms 802.1x");
+        print "Starting WPA supplicant.\n";
+        system("wpa_supplicant -D openbsd -i $int -B ".
+            "-c /etc/wpa_supplicant.conf");
     } else {
         die("Error: unknown network type \"$type\".\n");
     }
@@ -512,7 +523,8 @@ sub if_down {
     my $wlan_int = $config{"wlan_int"};
     print "Bringing $int down.\n";
     if($int eq $wlan_int) {
-        system("ifconfig $int -nwid -chan down");
+        system("pkill wpa_supplicant");
+        system("ifconfig $int -nwid -nwkey -chan -wpa -wpakey down");
     } else {
         system("ifconfig $int down");
     }
