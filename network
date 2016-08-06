@@ -182,7 +182,7 @@ sub list {
             $dns = "Cust.";
         }
         printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", $net{"name"},
-            ($net{"nwid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
+            ($net{"ssid"} || "-"), $net{"type"}, ($net{"ipv4"} || "dhcp"), $dns,
             ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
     }
     print "-" x 105 . "\n\n";
@@ -287,7 +287,7 @@ sub net_connect {
             $int = $wlan_int;
             if_down($wired_int) if $wired_int;
             if_lladdr($wlan_int, $connect{"lladdr"});
-            wlan_config($wlan_int, $connect{"nwid"}, $connect{"wpakey"},
+            wlan_config($wlan_int, $connect{"ssid"}, $connect{"key"},
                 $connect{"type"});
         }
 
@@ -494,16 +494,18 @@ sub if_lladdr {
 #
 
 sub wlan_config {
-    my ($int, $nwid, $key, $type) = @_;
-    print "Configuring SSID \"$nwid\" on $int.\n";
+    my ($int, $ssid, $key, $type) = @_;
+    print "Configuring SSID \"$ssid\" on $int.\n";
     system("pkill wpa_supplicant");
-    system("ifconfig $int -nwid -wpa -wpakey");
+    system("ifconfig $int -nwid -nwkey -wpa -wpakey");
     if(uc($type) eq uc("open")) {
-        system("ifconfig $int nwid \"$nwid\"");
+        system("ifconfig $int nwid \"$ssid\"");
+    } elsif(uc($type) eq uc("wep")) {
+        system("ifconfig $int nwid \"$ssid\" nwkey \"$key\"");
     } elsif(uc($type) eq uc("wpa")) {
-        system("ifconfig $int nwid \"$nwid\" wpa wpaakms psk wpakey \"$key\"");
+        system("ifconfig $int nwid \"$ssid\" wpa wpaakms psk wpakey \"$key\"");
     } elsif(uc($type) eq uc("802.1x")) {
-        system("ifconfig $int nwid \"$nwid\" wpa wpaakms 802.1x");
+        system("ifconfig $int nwid \"$ssid\" wpa wpaakms 802.1x");
         system("wpa_supplicant -D openbsd -i $int -B ".
             "-c /etc/wpa_supplicant.conf");
     } else {
@@ -522,7 +524,7 @@ sub if_down {
     print "Bringing $int down.\n";
     if($int eq $wlan_int) {
         system("pkill wpa_supplicant");
-        system("ifconfig $int -nwid -chan -wpa -wpakey down");
+        system("ifconfig $int -nwid -nwkey -chan -wpa -wpakey down");
     } else {
         system("ifconfig $int down");
     }
