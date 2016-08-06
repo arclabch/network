@@ -61,10 +61,13 @@ Name of the network. Used to connect to it.
 Type of network. Accepted values are:
 .Em wired
 (for a wired network),
-.Em open
-or
+.Em open ,
 .Em wpa
-(for a wireless network).
+or
+.Em 802.1x
+(for wireless networks). Note that 802.1x requires a correctly configured
+.Em /etc/wpa_supplicant.conf
+file for the relevant SSID.
 .It Ic ipv4
 IPv4 configuration. Accepted values are:
 .Em dhcp
