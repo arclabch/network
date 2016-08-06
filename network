@@ -54,6 +54,7 @@ sub route_setup;
 sub wlan_config;
 sub if_lladdr;
 sub if_down;
+sub vpn_openvpn;
 
 
 # 
@@ -162,6 +163,8 @@ sub usage {
 #
 
 sub list {
+
+    # Networks
     print "Configured networks:\n";
     printf("%-10s %-20s %-6s %-20s %-6s %-20s %-20s\n", "Network", "SSID",
         "Type", "IPv4", "DNS", "DHCP hostname", "Link layer addr");
@@ -181,6 +184,8 @@ sub list {
             ($net{"hostname"} || "-"), ($net{"lladdr"} || "-"));
     }
     print "-" x 105 . "\n\n";
+
+    # VPNs
     print "Configured VPNs:\n";
     printf("%-10s %-10s %-50s\n", "VPN name", "Type", "Configuration file");
     print "-" x 72 . "\n";
@@ -321,6 +326,39 @@ sub net_connect {
 
 sub vpn {
     my $vpncon = shift;
+    check_root();
+
+    my %connect;
+
+    # Check if we are disconnecting
+    if(uc($vpncon) eq uc("disconnect")) {
+        print "Disconnecting VPN.\n";
+        vpn_disconnect();
+    } else {
+
+        foreach my $index(keys %vpns) {
+            my %vpn = %{$vpns{$index}};
+            if(uc($vpn{"name"}) eq uc ($vpncon)) {
+                %connect = %vpn;
+            } else {
+                next;
+            }
+        }
+    
+        if(scalar(keys %connect) > 0) {
+            print "Connecting to \"".$connect{"name"}."\".\n";
+            
+            # Switch case VPN type
+            if(uc($connect{"type"}) eq uc("openvpn")) {
+                vpn_openvpn($connect{"config"});
+            } else {
+                print "Error: unknown VPN type \"".$connect{"type"}."\".\n";
+            }
+        } else {
+            print "Error: VPN \"$vpncon\" not found in the configuration ";
+            print "file.\n";
+        }
+    }
 }
 
 
@@ -485,4 +523,23 @@ sub if_down {
         $line =~ /^[[:space:]]*inet (.*) netmask .*$/;
         my $return = `ifconfig $int inet $1 delete`;
     }
+}
+
+
+#
+# Disconnect VPN
+#
+
+sub vpn_disconnect {
+    system("pkill openvpn");
+}
+
+
+#
+# OpenVPN handler
+#
+
+sub vpn_openvpn {
+    my $config = shift;
+    system("openvpn --config $config --daemon");
 }
