@@ -1,3 +1,17 @@
+1.3.0
+=====
+
+Features:
+- Added support for legacy WEP networks.
+- Added support for 802.1x networks through wpa_supplicant.
+
+Bugfixes:
+- Missing subs declarations in code.
+
+Other:
+- nwid becomes ssid and wpakey becomes key for simpler configuration files.
+
+
 1.2.0
 =====
 
@@ -10,6 +24,7 @@ Bugfixes:
 Other:
 - Created the changelog.
 - Added install/update/uninstall instructions.
+
 
 1.1.1
 =====
