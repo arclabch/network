@@ -16,7 +16,7 @@ install:
 	@echo "Installing configuration file to /etc/networks.conf"
 	@mkdir -p ${DESTDIR}/etc
 	@cp -f networks.conf /etc/networks.conf
-	@chmod 775 /etc/networks.conf
+	@chmod 640 /etc/networks.conf
 	@chown root:wheel /etc/networks.conf
 	@echo "Installing manual pages to ${DESTDIR}${MANPREFIX}"
 	@mkdir -p ${DESTDIR}${MANPREFIX}/man1
